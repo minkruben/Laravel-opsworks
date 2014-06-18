@@ -19,3 +19,4 @@
       cwd "#{path}/app/storage"
       command "chmod -R u+rwX,g+rwX ."
   end
+  end
