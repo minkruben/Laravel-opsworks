@@ -1,37 +1,21 @@
-node[:deploy].each do |app_name, deploy|
-  if deploy[:application] == "platform"
-    script "set_permissions" do
-      interpreter "bash"
-      user "root"
-      cwd "#{deploy[:deploy_to]}/current/app"
-      code <<-EOH
-      chmod -R 777 storage
-      EOH
-    end
-
-    
-
-    template "#{deploy[:deploy_to]}/current/app/config/database.php" do
-      source "database.php.erb"
-      mode 0660
-      group deploy[:group]
-
-      if platform?("ubuntu")
-        owner "www-data"
-      elsif platform?("amazon")   
-        owner "apache"
-      end
-
-      variables(
-        :host =>     (deploy[:database][:host] rescue nil),
-        :user =>     (deploy[:database][:username] rescue nil),
-        :password => (deploy[:database][:password] rescue nil),
-        :db =>       (deploy[:database][:database] rescue nil)
-      )
-
-     only_if do
-       File.directory?("#{deploy[:deploy_to]}/current")
-     end
-    end
-end
-end
+[release_path].each do |path|
+  log "before_migrate hook [#{path}]" do
+      level :debug
+  end
+  # run composer install
+  execute "composer install" do
+      user "deploy"
+      cwd path
+      command "composer install --no-dev --no-interaction --optimize-autoloader"
+      # only execute for composer projects
+      only_if "test -f \"#{path}/composer.json\""
+  end
+  # correct permissions to allow apache to write
+  execute "chown #{path}/app/storage" do
+      cwd "#{path}/app/storage"
+      command "chown -R deploy.www-data ."
+  end
+  execute "chmod #{path}/app/storage" do
+      cwd "#{path}/app/storage"
+      command "chmod -R u+rwX,g+rwX ."
+  end
