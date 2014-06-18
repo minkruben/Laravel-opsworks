@@ -3,7 +3,7 @@ node[:deploy].each do |app_name, deploy|
     script "set_permissions" do
       interpreter "bash"
       user "root"
-      cwd "#{deploy[:deploy_to]}/current"
+      cwd "#{deploy[:deploy_to]}/current/app"
       code <<-EOH
       chmod -R 777 storage
       EOH
@@ -33,6 +33,6 @@ node[:deploy].each do |app_name, deploy|
        File.directory?("#{deploy[:deploy_to]}/current")
      end
     end
-    
+
   end
 end
