@@ -39,5 +39,5 @@ node[:deploy].each do |app_name, deploy|
    only_if do
      File.directory?("#{deploy[:deploy_to]}/current")
    end
-  end
+  
 end
