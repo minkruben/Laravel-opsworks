@@ -27,7 +27,8 @@ node[:deploy].each do |app_name, deploy|
       owner "www-data"
     elsif platform?("amazon")   
       owner "apache"
-  end
+    end
+  
 
     variables(
       :host =>     (deploy[:database][:host] rescue nil),
@@ -36,7 +37,8 @@ node[:deploy].each do |app_name, deploy|
       :db =>       (deploy[:database][:database] rescue nil)
     )
 
-   only_if do
-     File.directory?("#{deploy[:deploy_to]}/current")
-   end
+  only_if do
+    File.directory?("#{deploy[:deploy_to]}/current")
+  end
+end
 end
